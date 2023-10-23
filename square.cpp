@@ -16,6 +16,9 @@ baseMax newBase(int val){
   return baseMax{.base=unsigned(val)};
 }
 
+void showBase(baseMax b){
+  cout << b.exp << " " << b.base << endl;
+}
 baseMax add(baseMax b1, baseMax b2){
   maxInt sum = b1.base + b2.base;
   return baseMax{.base=sum, .exp=b1.exp+b2.exp+(sum<b1.base || sum<b2.base ? 1 : 0)};
@@ -88,11 +91,17 @@ int main(){
      c = add(a, b);
     b = a;
     a = c;
+    cout << i << ": ";
+    showBase(c);
     if(isEven(c)){
+      cout << "square: ";
+      showBase(square(c));
       s = add(s, square(c));
+      s = mod(s, m);
     }
   }
   cout << s.exp << " " << s.base << endl;
   cout << mod(s, m).base << endl;
+  // cout << maxn << endl;
   return 0;
 }

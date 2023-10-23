@@ -14,9 +14,11 @@ struct Octal{
   int base=0;
   int exp =0;
 };
+
 Octal newOctal(int val){
   return Octal{.base=val%8, .exp=val/8};
 }
+Octal maxBase = newOctal(7);
 
 Octal add(Octal o1, Octal o2){
   int sum = oct(o1.base + o2.base);
@@ -41,8 +43,11 @@ int compare(Octal o1, Octal o2){
   if(o1.base < o2.base) return -1;
   else return 0;
 }
+
 Octal mult(Octal o1, Octal o2){
   Octal ans;
+  Octal maxo = compare(o1, o2) == 1 ? o1 : o2;
+  Octal mino = compare(o1, o2) == -1 ? o1 : o2;
   int a = 7/o2.base;
   int b = o1.base/a;
   ans.exp = b;
@@ -50,8 +55,13 @@ Octal mult(Octal o1, Octal o2){
     ans.base = o2.base * o2.base;
     return ans;
   }
-  int temp = 
+  int temp = (7%o2.base)+1;
+  ans = sub(ans, newOctal(temp*b));
+  temp = o1.base - (a*b);
+  ans = add(ans, newOctal(o2.base*temp));
+  return ans;
 }
+
 Octal square(Octal o){
   Octal ans;
   int a = 7/o.base;
@@ -67,13 +77,20 @@ Octal square(Octal o){
   ans = add(ans, newOctal(o.base*temp));
   return ans;
 }
+
+Octal mod(Octal b, Octal n){
+  Octal ans;
+  ans.base = ((7 % n.base + 1) % n.base * b.exp % n.base + b.base)%n.base;
+  return ans;
+}
+
 int main(){
   int x, y;
   cin >> x >> y;
   Octal o1 = newOctal(x);
   Octal o2 = newOctal(y);
   Octal res;
-  res = square(o1);
+  res = mult(o1, o2);
   cout << "o1: " << o1.exp << o1.base << endl;
   cout << "o2: " << o2.exp << o2.base << endl;
   cout << res.exp << res.base << endl;
