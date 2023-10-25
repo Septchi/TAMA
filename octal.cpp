@@ -48,14 +48,14 @@ Octal mult(Octal o1, Octal o2){
   Octal ans;
   Octal maxo = compare(o1, o2) == 1 ? o1 : o2;
   Octal mino = compare(o1, o2) == -1 ? o1 : o2;
-  int a = 7/o2.base;
-  int b = o1.base/a;
+  int a = 7/mino.base;
+  int b = maxo.base/a;
   ans.exp = b;
   if(b==0){
-    ans.base = o2.base * o2.base;
+    ans.base = mino.base * maxo.base;
     return ans;
   }
-  int temp = (7%o2.base)+1;
+  int temp = (7%mino.base)+1;
   ans = sub(ans, newOctal(temp*b));
   temp = o1.base - (a*b);
   ans = add(ans, newOctal(o2.base*temp));
