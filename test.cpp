@@ -1,98 +1,105 @@
+#include <functional>
 #include <iostream>
 #include <cmath>
 
 using namespace std;
+
 int oct(int val){
-  if (val>7) cout << "overloaded: " << val << endl;
-  if (val<0){
-    cout << "overloaded" << val << endl;
-    val = 8+val;
+  int n = 16;
+  val %= n;
+  if(val<0){
+    val = n+val;
   }
-  return val%8;
+  return val;
 }
-struct Octal{
-  int base=0;
-  int exp =0;
+
+struct Digit{
+  int val = 0;
+  Digit* right = nullptr;
+  Digit* left = nullptr;
 };
 
-Octal newOctal(int val){
-  return Octal{.base=val%8, .exp=val/8};
-}
-Octal maxBase = newOctal(7);
-
-Octal add(Octal o1, Octal o2){
-  int sum = oct(o1.base + o2.base);
-  return Octal{.base=sum, .exp=oct(o1.exp+o2.exp+(sum<o1.base || sum<o2.base ? 1: 0))};
-}
-
-//Assume o1 > o2
-Octal sub(Octal o1, Octal o2){
-  if(o2.base>=o1.base)
-    return Octal{.base=oct(-(o2.base-o1.base)), .exp=oct(o1.exp-o2.exp-1)};
-  return Octal{.base=oct(-(o2.base-o1.base)), .exp=oct(o1.exp-o2.exp)};
-}
-
-bool check(Octal o){
-  return o.base%2==0;
-}
-
-int compare(Octal o1, Octal o2){
-  if(o1.exp > o2.exp) return 1;
-  if(o1.exp < o2.exp) return -1;
-  if(o1.base > o2.base) return 1;
-  if(o1.base < o2.base) return -1;
-  else return 0;
-}
-
-Octal mult(Octal o1, Octal o2){
-  Octal ans;
-  Octal maxo = compare(o1, o2) == 1 ? o1 : o2;
-  Octal mino = compare(o1, o2) == -1 ? o1 : o2;
-  int a = 7/o2.base;
-  int b = o1.base/a;
-  ans.exp = b;
-  if(b==0){
-    ans.base = o2.base * o2.base;
-    return ans;
+Digit* newDigit(int n){
+  Digit* digit = new Digit;
+  int temp = oct(n);
+  digit->val = temp;
+  if(temp<n){
+    digit->right = newDigit(1);
+    digit->right->left = digit;
   }
-  int temp = (7%o2.base)+1;
-  ans = sub(ans, newOctal(temp*b));
-  temp = o1.base - (a*b);
-  ans = add(ans, newOctal(o2.base*temp));
-  return ans;
+  return digit;
 }
-
-Octal square(Octal o){
-  Octal ans;
-  int a = 7/o.base;
-  int b = o.base/a;
-  ans.exp = b;
-  if(b==0){
-    ans.base = o.base * o.base;
-    return ans;
+Digit* add(Digit* d1, Digit* d2){
+  Digit* d = newDigit(0);
+  if(!d1 && d2) return d2;
+  if(!d2 && d1) return d1;
+  int sum = oct(d1->val+d2->val);
+  d->val = sum;
+  if(sum<d1->val || sum < d2->val){
+    if(d->right){
+      d->right = add(d1->right, newDigit(1));
+    }
+    else
+      d->right = newDigit(1);
   }
-  int temp = ((7%o.base)+1);
-  ans = sub(ans, newOctal(temp*b));
-  temp = (o.base-(a*b));
-  ans = add(ans, newOctal(o.base*temp));
-  return ans;
+  if(d1->right || d2->right){
+    if(d->right){
+      d->right = add(d->right, add(d1->right, d2->right));
+    }
+    else {
+      d->right = add(d1->right, d2->right);
+    }
+  }
+  if(d->right)  
+    d->right->left = d;
+  return d;
 }
 
-Octal mod(Octal b, Octal n){
-  Octal ans;
-  ans.base = ((7 % n.base + 1) % n.base * b.exp % n.base + b.base)%n.base;
-  return ans;
+
+struct Num{
+  Digit lsb;
+  Digit msb;
+};
+
+
+Num newNum(Digit* d){
+  Num num;
+  num.lsb = *d;
+  function<Digit*(Digit*)> func = [&](Digit* td){
+    if(td->right)
+      return func(td->right);
+    return td;
+  };
+  num.msb = *func(d);
+  return num;
+}
+
+void show(Num num){
+  function<void(Digit*)> func = [&](Digit* d){
+    cout << d->val << " ";
+    if(d->left) func(d->left);
+  };
+  func(&num.msb);
+  cout << endl;
+}
+
+Num addNum(Num n1, Num n2){
+  Digit* d = add(&n1.lsb, &n2.lsb);
+  cout << "lsb: " << d->val << endl;
+  return newNum(d);
 }
 
 int main(){
-  int x, y;
-  cin >> x >> y;
-  Octal o1 = newOctal(x);
-  Octal o2 = newOctal(y);
-  Octal res;
-  res = mult(o1, o2);
-  cout << "o1: " << o1.exp << o1.base << endl;
-  cout << "o2: " << o2.exp << o2.base << endl;
-  cout << res.exp << res.base << endl;
+  Num n1 = newNum(newDigit(15));
+  Num n2 = newNum(newDigit(15));
+  Num res;
+  res = addNum(n1, n2);
+  cout << "n1: ";
+  show(n1);
+  cout << "n2: ";
+  show(n2);
+  cout << "res: ";
+  show(res);
+  cout << res.lsb.right->val << res.lsb.val << endl;
   return 0;
 }
