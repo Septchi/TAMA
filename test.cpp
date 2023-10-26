@@ -15,17 +15,17 @@ int oct(int val){
 
 struct Digit{
   int val = 0;
-  Digit* right = nullptr;
   Digit* left = nullptr;
+  Digit* right = nullptr;
 };
 
-Digit* newDigit(int n){
+Digit* newDigit(int n=0){
   Digit* digit = new Digit;
   int temp = oct(n);
   digit->val = temp;
   if(temp<n){
-    digit->right = newDigit(1);
-    digit->right->left = digit;
+    digit->left = newDigit(1);
+    digit->left->right = digit;
   }
   return digit;
 }
@@ -35,6 +35,14 @@ int compare(Digit* d1, Digit* d2){
 	else if(d1->val < d2->val) return -1;
 	return 0;
 }
+
+Digit* lShift(Digit *d){
+	Digit* td;
+	td = newDigit();
+	td->left = newDigit(d->val);
+	td->left->right = td;
+	return td;
+}
 Digit* add(Digit* d1, Digit* d2){
   Digit* d = newDigit(0);
   if(!d1 && d2) return d2;
@@ -42,22 +50,22 @@ Digit* add(Digit* d1, Digit* d2){
   int sum = oct(d1->val+d2->val);
   d->val = sum;
   if(sum<d1->val || sum < d2->val){
-    if(d->right){
-      d->right = add(d1->right, newDigit(1));
+    if(d->left){
+      d->left = add(d1->left, newDigit(1));
     }
     else
-      d->right = newDigit(1);
+      d->left = newDigit(1);
   }
-  if(d1->right || d2->right){
-    if(d->right){
-      d->right = add(d->right, add(d1->right, d2->right));
+  if(d1->left || d2->left){
+    if(d->left){
+      d->left = add(d->left, add(d1->left, d2->left));
     }
     else {
-      d->right = add(d1->right, d2->right);
+      d->left = add(d1->left, d2->left);
     }
   }
-  if(d->right)  
-    d->right->left = d;
+  if(d->left)  
+    d->left->right = d;
   return d;
 }
 //assume d1 > d2
@@ -69,15 +77,15 @@ Digit* sub(Digit* d1, Digit* d2){
   }
 	int diff = oct(d1->val-d2->val);
 	d = newDigit(diff);
-	if(d1->right){
-		d->right = sub(d1->right, d2->right);
-		d->right->left = d;
+	if(d1->left){
+		d->left = sub(d1->left, d2->left);
+		d->left->right = d;
     if(d2->val>d1->val)
-      d->right->val -= 1;
+      d->left->val -= 1;
 	}
-  if(d->right)
-    if(d->right->val == 0)
-      d->right = nullptr;
+  if(d->left)
+    if(d->left->val == 0)
+      d->left = nullptr;
 	return d;
 }
 Digit* mult(Digit* d1, Digit* d2){
@@ -92,11 +100,11 @@ Digit* mult(Digit* d1, Digit* d2){
 		d->val = mind->val*maxd->val;
 		return d;
 	}
-	d->right = b;
+	d->left = b;
 	Digit* temp = newDigit(7%mind->val+1);
 	d = sub(d, mult(temp, b));
-	a = newDigit(7/mind->val); 
-	b = newDigit(maxd->val/a->val); 
+	a = newDigit(7/mind->val);
+	b = newDigit(maxd->val/a->val);
 	temp = sub(maxd,  mult(a, b));
   d = add(d, mult(temp, mind));
 	return d;
@@ -112,8 +120,8 @@ Num newNum(Digit* d){
   Num num;
   num.lsb = *d;
   function<Digit*(Digit*)> func = [&](Digit* td){
-    if(td->right)
-      return func(td->right);
+    if(td->left)
+      return func(td->left);
     return td;
   };
   num.msb = *func(d);
@@ -123,11 +131,12 @@ Num newNum(Digit* d){
 void show(Num num){
   function<void(Digit*)> func = [&](Digit* d){
     cout << d->val << " ";
-    if(d->left) func(d->left);
+    if(d->right) func(d->right);
   };
   func(&num.msb);
   cout << endl;
 }
+
 
 Num addNum(Num n1, Num n2){
   Digit* d = add(&n1.lsb, &n2.lsb);
@@ -141,23 +150,29 @@ Num subNum(Num n1, Num n2){
 
 Num multNum(Num n1, Num n2){
   function<Digit* (Digit*, Digit*)> func = [&](Digit* d1, Digit* d2){
-    return mult(d1, d2);
+	  Digit* d;
+	  d = mult(d1, d2);
+	  if(d1->right){
+		d = lShift(d);
+		d = add(d, func(d1->right, d2));
+	  }
+	  return d;
   };
-  Digit* d = mult(&n1.lsb, &n2.lsb);
+  Digit* d = mult(&n1.msb, &n2.msb);
   return newNum(d);
 }
 
 int main(){
-  Num n1 = newNum(newDigit(8));
-  Num n2 = newNum(newDigit(7));
+  Num n1 = newNum(newDigit(10));
+  Num n2 = newNum(newDigit(5));
   Num res;
-  res = multNum(n1, n2);
+  res = newNum(lShift(newDigit(5)));
   cout << "n1: ";
   show(n1);
   cout << "n2: ";
   show(n2);
   cout << "res: ";
   show(res);
-  cout << res.lsb.val << endl;
+  cout << res.lsb.left->val << endl;
   return 0;
 }
