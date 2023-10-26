@@ -19,6 +19,13 @@ struct Digit{
   Digit* right = nullptr;
 };
 
+
+struct Num{
+  Digit lsb;
+  Digit msb;
+};
+
+
 Digit* newDigit(int n=0){
   Digit* digit = new Digit;
   int temp = oct(n);
@@ -35,14 +42,18 @@ int compare(Digit* d1, Digit* d2){
 	else if(d1->val < d2->val) return -1;
 	return 0;
 }
-
-Digit* lShift(Digit *d){
-	Digit* td;
-	td = newDigit();
-	td->left = newDigit(d->val);
-	td->left->right = td;
-	return td;
-}
+// Digit* lShift(Digit *d){
+//   Digit* td = newDigit();
+//   d->right = newDigit();
+//   d->right->left = d;
+//   cout << "post-shift: ";
+//   if(d->left) cout << d->left->val;
+//   cout << d->val << d->right->val << endl;
+//   cout << "post-shift: ";
+//   
+//   
+// 	return d->right;
+// }
 
 Digit* add(Digit* d1, Digit* d2){
   Digit* d = newDigit(0);
@@ -112,10 +123,6 @@ Digit* mult(Digit* d1, Digit* d2){
 	return d;
 }
 
-struct Num{
-  Digit lsb;
-  Digit msb;
-};
 
 
 Num newNum(Digit* d){
@@ -150,31 +157,35 @@ Num subNum(Num n1, Num n2){
 	return newNum(d);
 }
 
+Digit* lShift(num);
 Num multNum(Num n1, Num n2){
   function<Digit* (Digit*, Digit*)> func = 
-	  [&](Digit* d1, Digit* d2){
-	  Digit* d;
+	  [&func](Digit* d1, Digit* d2){
+	  Digit* d = newDigit();
 	  d = mult(d1, d2);
-	  cout << "d-f: ";
-	  show(newNum(d));
 	  if(d1->left){
-		d = lShift(d);
-		cout << "here-f: ";
-		show(newNum(d));
-		d = add(d, func(d1->left, d2));
+		// d = lShift(d);
+      Digit* temp = newDigit();
+      temp = func(d1->left, d2);
+      temp = lShift(temp);
+      cout << "temp: ";
+      show(newNum(temp));
+      d = add(d, temp);
 	  }
 	  return d;
-	  cout << "d-f: ";
-	  show(newNum(d));
   };
   function<Digit* (Digit*, Digit*)> map = 
-	  [&](Digit* d1, Digit* d2){
+	  [&map, &func](Digit* d1, Digit* d2){
 	  Digit* d;
 	  d = func(d1, d2);
 	  cout << "d-m: ";
 	  show(newNum(d));
 	  if(d2->left){
-		  d = lShift(d);
+		  // d = lShift(d);
+      // cout << "here-m: ";
+      // show(newNum(map(d1,d2->left)));
+      // cout << "here-m-2: ";
+      // show(newNum(lShift(map(d1,d2->left))));
 		  d = add(d, map(d1, d2->left));
 	  }
 	  return d;
@@ -193,6 +204,6 @@ int main(){
   res = multNum(n1, n2);
   cout << "res: ";
   show(res);
-  cout << res.lsb.left->val << endl;
+  // show(newNum(mult(newDigit(1), newDigit(2))));
   return 0;
 }
