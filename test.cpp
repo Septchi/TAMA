@@ -43,6 +43,7 @@ Digit* lShift(Digit *d){
 	td->left->right = td;
 	return td;
 }
+
 Digit* add(Digit* d1, Digit* d2){
   Digit* d = newDigit(0);
   if(!d1 && d2) return d2;
@@ -68,6 +69,7 @@ Digit* add(Digit* d1, Digit* d2){
     d->left->right = d;
   return d;
 }
+
 //assume d1 > d2
 Digit* sub(Digit* d1, Digit* d2){
 	Digit* d = newDigit(0);
@@ -149,28 +151,46 @@ Num subNum(Num n1, Num n2){
 }
 
 Num multNum(Num n1, Num n2){
-  function<Digit* (Digit*, Digit*)> func = [&](Digit* d1, Digit* d2){
+  function<Digit* (Digit*, Digit*)> func = 
+	  [&](Digit* d1, Digit* d2){
 	  Digit* d;
 	  d = mult(d1, d2);
-	  if(d1->right){
+	  cout << "d-f: ";
+	  show(newNum(d));
+	  if(d1->left){
 		d = lShift(d);
-		d = add(d, func(d1->right, d2));
+		cout << "here-f: ";
+		show(newNum(d));
+		d = add(d, func(d1->left, d2));
+	  }
+	  return d;
+	  cout << "d-f: ";
+	  show(newNum(d));
+  };
+  function<Digit* (Digit*, Digit*)> map = 
+	  [&](Digit* d1, Digit* d2){
+	  Digit* d;
+	  d = func(d1, d2);
+	  cout << "d-m: ";
+	  show(newNum(d));
+	  if(d2->left){
+		  d = lShift(d);
+		  d = add(d, map(d1, d2->left));
 	  }
 	  return d;
   };
-  Digit* d = mult(&n1.msb, &n2.msb);
-  return newNum(d);
+  return newNum(map(&n1.lsb, &n2.lsb));
 }
 
 int main(){
   Num n1 = newNum(newDigit(10));
-  Num n2 = newNum(newDigit(5));
+  Num n2 = newNum(newDigit(10));
   Num res;
-  res = newNum(lShift(newDigit(5)));
   cout << "n1: ";
   show(n1);
   cout << "n2: ";
   show(n2);
+  res = multNum(n1, n2);
   cout << "res: ";
   show(res);
   cout << res.lsb.left->val << endl;
