@@ -20,6 +20,12 @@ struct Digit{
 };
 
 
+struct Num{
+  Digit lsb;
+  Digit msb;
+};
+
+
 Digit* newDigit(int n=0){
   Digit* digit = new Digit;
   int temp = oct(n);
@@ -31,17 +37,12 @@ Digit* newDigit(int n=0){
   return digit;
 }
 
-void show(Digit* d){
-  if(d->left)
-    show(d->left);
-  cout << d->val << " ";
-}
-
 int compare(Digit* d1, Digit* d2){
 	if(d1->val > d2->val) return 1;
 	else if(d1->val < d2->val) return -1;
 	return 0;
 }
+<<<<<<< HEAD
 <<<<<<< HEAD
 Digit* lShift(Digit *d){
   Digit* td = newDigit();
@@ -65,6 +66,20 @@ Digit* lShift(Digit *d){
 	return d->right;
 >>>>>>> noNum
 }
+=======
+// Digit* lShift(Digit *d){
+//   Digit* td = newDigit();
+//   d->right = newDigit();
+//   d->right->left = d;
+//   cout << "post-shift: ";
+//   if(d->left) cout << d->left->val;
+//   cout << d->val << d->right->val << endl;
+//   cout << "post-shift: ";
+//   
+//   
+// 	return d->right;
+// }
+>>>>>>> parent of 90b692d (fixed multiplication)
 
 Digit* add(Digit* d1, Digit* d2){
   Digit* d = newDigit(0);
@@ -112,12 +127,12 @@ Digit* sub(Digit* d1, Digit* d2){
       d->left = nullptr;
 	return d;
 }
-
 Digit* mult(Digit* d1, Digit* d2){
+	Digit* d = newDigit(0);
 	Digit* mind = compare(d1, d2) == -1 ? d1 : d2; 
 	Digit* maxd = compare(d1, d2) != -1 ? d1 : d2; 
-  if(mind->val <= 1) return newDigit(d1->val*d2->val);
-	Digit* d = newDigit(0);
+  if(mind->val == 0) return d;
+  if(mind->val == 1) return maxd;
 	Digit* a = newDigit(7/mind->val); 
 	Digit* b = newDigit(maxd->val/a->val); 
 	if(b->val == 0){
@@ -131,13 +146,13 @@ Digit* mult(Digit* d1, Digit* d2){
 	b = newDigit(maxd->val/a->val);
 	temp = sub(maxd,  mult(a, b));
   d = add(d, mult(temp, mind));
-  cout << "d: ";
-  show(d);
-  cout <<endl;
 	return d;
 }
 
 <<<<<<< HEAD
+<<<<<<< HEAD
+=======
+>>>>>>> parent of 90b692d (fixed multiplication)
 
 
 Num newNum(Digit* d){
@@ -153,7 +168,11 @@ Num newNum(Digit* d){
 }
 
 void show(Num num){
+<<<<<<< HEAD
   function<void(Digit*)> func = [&func](Digit* d){
+=======
+  function<void(Digit*)> func = [&](Digit* d){
+>>>>>>> parent of 90b692d (fixed multiplication)
     cout << d->val << " ";
     if(d->right) func(d->right);
   };
@@ -172,60 +191,60 @@ Num subNum(Num n1, Num n2){
 	return newNum(d);
 }
 
+<<<<<<< HEAD
 Num multNum(Num n1, Num n2){
 =======
 Digit* multNum(Digit* d1, Digit* d2){
 >>>>>>> noNum
+=======
+Digit* lShift(num);
+Num multNum(Num n1, Num n2){
+>>>>>>> parent of 90b692d (fixed multiplication)
   function<Digit* (Digit*, Digit*)> func = 
 	  [&func](Digit* d1, Digit* d2){
 	  Digit* d = newDigit();
 	  d = mult(d1, d2);
-    cout << "d-f: ";
-    show(d);
-    cout << endl;
 	  if(d1->left){
 		// d = lShift(d);
       Digit* temp = newDigit();
       temp = func(d1->left, d2);
       temp = lShift(temp);
+      cout << "temp: ";
+      show(newNum(temp));
       d = add(d, temp);
-      cout << "here-d-f: ";
-      show(d);
-      cout << endl;
-      }
+	  }
 	  return d;
   };
   function<Digit* (Digit*, Digit*)> map = 
 	  [&map, &func](Digit* d1, Digit* d2){
 	  Digit* d;
 	  d = func(d1, d2);
-    cout << "d-m: ";
-    show(d);
-    cout << endl;
+	  cout << "d-m: ";
+	  show(newNum(d));
 	  if(d2->left){
 		  // d = lShift(d);
-      cout << "here-m: ";
-		  d = add(d, lShift(map(d1, d2->left)));
+      // cout << "here-m: ";
+      // show(newNum(map(d1,d2->left)));
+      // cout << "here-m-2: ";
+      // show(newNum(lShift(map(d1,d2->left))));
+		  d = add(d, map(d1, d2->left));
 	  }
 	  return d;
   };
-  return map(d1, d2);
+  return newNum(map(&n1.lsb, &n2.lsb));
 }
 
 int main(){
-  Digit* n1 = newDigit(10);
-  Digit* n2 = newDigit(10);
-  Digit* res;
+  Num n1 = newNum(newDigit(10));
+  Num n2 = newNum(newDigit(10));
+  Num res;
   cout << "n1: ";
   show(n1);
-  cout << endl;
   cout << "n2: ";
   show(n2);
-  cout << endl;
   res = multNum(n1, n2);
   cout << "res: ";
   show(res);
-  cout << endl;
   // show(newNum(mult(newDigit(1), newDigit(2))));
   return 0;
 }
