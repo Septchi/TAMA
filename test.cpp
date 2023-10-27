@@ -120,10 +120,27 @@ Digit* mult(Digit* d1, Digit* d2){
 	a = newDigit(7/mind->val);
 	b = newDigit(maxd->val/a->val);
 	temp = sub(maxd,  mult(a, b));
-  d = add(d, mult(temp, mind));
+	d = add(d, mult(temp, mind));
 	return d;
 }
-
+// assume d1 > d2;
+Digit* div(Digit* d1, Digit* d2){
+	Digit* d;
+	if(d1->val < d2->val){
+		int a = 7/d2->val;
+		int b = d1->left->val/a;
+		cout << "test: " << d1->left->val << endl;
+		cout << "a: " << a << endl;
+		cout << "b: " << b << endl;
+		d = newDigit(b);
+		Digit* temp = newDigit(7%d2->val+1);
+		d = add(d,  div(add(newDigit(d1->val), mult(temp, d2)), d2));
+	}
+	else{
+		d = newDigit(d1->val/d2->val);
+	}
+	return d;
+}
 Digit* multNum(Digit* d1, Digit* d2){
   function<Digit* (Digit*, Digit*)> func = 
 	  [&func](Digit* d1, Digit* d2){
@@ -142,7 +159,6 @@ Digit* multNum(Digit* d1, Digit* d2){
 	  [&map, &func](Digit* d1, Digit* d2){
 	  Digit* d;
 	  d = func(d1, d2);
-	  cout << "d-m: ";
 	  if(d2->left){
 		  // d = lShift(d);
 		  d = add(d, lShift(map(d1, d2->left)));
@@ -153,16 +169,17 @@ Digit* multNum(Digit* d1, Digit* d2){
 }
 
 int main(){
-  Digit* n1 = newDigit(10);
-  Digit* n2 = newDigit(10);
+  Digit* n1 = newDigit(9);
+  Digit* n2 = newDigit(5);
   Digit* res;
+  n1 = add(n1, newDigit(8));
   cout << "n1: ";
   show(n1);
   cout << endl;
   cout << "n2: ";
   show(n2);
   cout << endl;
-  res = multNum(n1, n2);
+  res = div(n1, n2);
   cout << "res: ";
   show(res);
   cout << endl;
