@@ -42,18 +42,14 @@ int compare(Digit* d1, Digit* d2){
 	else if(d1->val < d2->val) return -1;
 	return 0;
 }
-// Digit* lShift(Digit *d){
-//   Digit* td = newDigit();
-//   d->right = newDigit();
-//   d->right->left = d;
-//   cout << "post-shift: ";
-//   if(d->left) cout << d->left->val;
-//   cout << d->val << d->right->val << endl;
-//   cout << "post-shift: ";
-//   
-//   
-// 	return d->right;
-// }
+Digit* lShift(Digit *d){
+  Digit* td = newDigit();
+  d->right = newDigit();
+  td = d->right;
+  td->left = d;
+
+	return td;
+}
 
 Digit* add(Digit* d1, Digit* d2){
   Digit* d = newDigit(0);
@@ -138,7 +134,7 @@ Num newNum(Digit* d){
 }
 
 void show(Num num){
-  function<void(Digit*)> func = [&](Digit* d){
+  function<void(Digit*)> func = [&func](Digit* d){
     cout << d->val << " ";
     if(d->right) func(d->right);
   };
@@ -157,7 +153,6 @@ Num subNum(Num n1, Num n2){
 	return newNum(d);
 }
 
-Digit* lShift(num);
 Num multNum(Num n1, Num n2){
   function<Digit* (Digit*, Digit*)> func = 
 	  [&func](Digit* d1, Digit* d2){
