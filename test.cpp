@@ -48,12 +48,16 @@ int compare(Digit* d1, Digit* d2){
 	return 0;
 }
 
-Digit* lShift(Digit *d){
-  Digit* td = newDigit();
-  d->right = newDigit();
-  td = d->right;
-  td->left = d;
+Digit* lShift(Digit* d){
+	Digit* td = newDigit();
+	d->right = newDigit();
+	td = d->right;
+	td->left = d;
 	return td;
+}
+
+Digit* rShift(Digit* d){
+	return d->left;
 }
 
 Digit* add(Digit* d1, Digit* d2){
@@ -147,10 +151,6 @@ Digit* multNum(Digit* d1, Digit* d2){
 	  Digit* d = newDigit();
 	  d = mult(d1, d2);
 	  if(d1->left){
-		// d = lShift(d);
-      // Digit* temp = newDigit();
-      // temp = func(d1->left, d2);
-      // temp = lShift(temp);
       d = add(d, lShift(func(d1->left, d2)));
 	  }
 	  return d;
@@ -160,7 +160,6 @@ Digit* multNum(Digit* d1, Digit* d2){
 	  Digit* d;
 	  d = func(d1, d2);
 	  if(d2->left){
-		  // d = lShift(d);
 		  d = add(d, lShift(map(d1, d2->left)));
 	  }
 	  return d;
@@ -169,10 +168,11 @@ Digit* multNum(Digit* d1, Digit* d2){
 }
 
 int main(){
-  Digit* n1 = newDigit(9);
+  Digit* n1 = newDigit(7);
+  n1 = lShift(n1);
+  n1 = add(n1, newDigit(7));
   Digit* n2 = newDigit(5);
   Digit* res;
-  n1 = add(n1, newDigit(8));
   cout << "n1: ";
   show(n1);
   cout << endl;
